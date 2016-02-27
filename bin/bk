@@ -44,5 +44,5 @@ tar -pczf $ARCHIVE ./*
 
 s3cmd put $ARCHIVE $S3BUCKET_PATH/
 
-rm $ARCHIVE -f;
-
+rm $ARCHIVE -f
+rm $FOLDER -rf
