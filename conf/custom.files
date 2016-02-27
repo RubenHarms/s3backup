@@ -1,0 +1,6 @@
+/etc/postfix/vmail_domains
+/etc/postfix/vmail_aliases
+/etc/postfix/vmail_mailbox
+/etc/postfix/main.cf
+/etc/dovecot/dovecot.conf
+/etc/dovecot/passwd

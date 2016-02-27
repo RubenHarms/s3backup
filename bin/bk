@@ -1,0 +1,48 @@
+#!/bin/bash
+
+pushd `dirname $0` > /dev/null
+BIN_PATH=`pwd -P`
+popd > /dev/null
+BAK_PATH=$BIN_PATH/..;
+DATA_PATH=${BAK_PATH}/data;
+CONF_PATH=${BAK_PATH}/conf;
+
+. $CONF_PATH/bk.conf
+
+if [ ! -d "$DATA_PATH" ]; then
+        mkdir $DATA_PATH
+fi
+
+WDATE=`date +%w`
+FOLDER=${DATA_PATH}/${WDATE};
+
+if [  -d "$FOLDER" ]; then
+	rm $FOLDER -rf
+fi
+
+mkdir $FOLDER;
+
+if [ $BACKUP_CUSTOM -eq 1 ]; then
+
+	xargs -a ${CONF_PATH}/custom.dirs cp --parents -rt ${FOLDER}
+	xargs -a ${CONF_PATH}/custom.files cp --parents -rt ${FOLDER}
+
+fi
+
+if [ $BACKUP_MONGO -eq 1 ]; then
+	echo "Backuping mongo..."
+	if [ "$MONGO_BACKUP_TYPE" = "dump" ]; then
+		mongodump  -u $MONGO_USERNAME --authenticationDatabase $MONGO_AUTH_DATABASE --password $MONGO_PASSWORD --out $FOLDER
+	fi
+fi
+
+ARCHIVE="${DATA_PATH}/${WDATE}.tar.gz"
+
+echo $ARCHIVE;
+cd $FOLDER
+tar -pczf $ARCHIVE ./*
+
+s3cmd put $ARCHIVE $S3BUCKET_PATH/
+
+rm $ARCHIVE -f;
+
